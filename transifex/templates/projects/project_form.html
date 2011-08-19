@@ -1,0 +1,84 @@
+{% extends "projects/project_menu.html" %}
+{% load i18n %}
+{% load txcommontags %}
+{% load permissions %}
+{% load txpermissions %}
+
+{% block title %}
+  {% if not project %}
+    {{ block.super }} | {% trans "Add a project" %}
+  {% else %}
+    {{ block.super }} | {{ project.name}}
+  {% endif %}
+{% endblock %}
+
+{% block breadcrumb %}
+  {% if not project %}
+    {{ block.super }} &raquo; {% trans "Add a project" %}
+  {% else %}
+    {{ block.super }} &raquo;
+    {% blocktrans with project.name as project_name %}Edit {{ project_name }}{% endblocktrans %}
+  {% endif %}
+{% endblock %}
+
+{% block content_title %}
+  <h2 class="pagetitle">
+  {% if not project %}
+    {% trans "New project" %}
+  {% else %}
+    {% blocktrans with project.name as project_name %}Edit {{ project_name }}{% endblocktrans %}
+  {% endif %}
+  </h2>
+   
+   <div class="description">
+	<p>{% if not project %}
+    {% trans "Create a new project on Transifex" %}
+  {% else %}
+    {% trans "Edit your Project" %}
+  {% endif %}
+    </p>
+</div> 
+
+    
+    
+{% endblock %}
+
+{% block content_main %}
+<div id="project-form-container">
+{% include "helptext/project_form_helptext.html" %}
+<h3>
+{% if not project %}
+    {% trans "Add the details of your project" %}
+{% else %}
+    {% trans "Edit the details of your project" %}
+{% endif %}
+</h3>
+
+<div class="project_create generic_form">
+  <form action='' method='post'>{% csrf_token %}
+    <table>
+        <tbody>
+        {% form_as_table_rows project_form %}
+        </tbody>
+    </table>
+    <p class="submit"><input type="submit" class="i16 submit buttonized" value="{% trans "Save project" %}" /></p>
+  </form>
+</div>
+
+{% get_permission "project_perm.maintain" for request.user and project as "is_maintainer" %}
+
+  	{% if project %}
+	    {% if perms.projects.delete_project or is_maintainer %}
+	    <h3 style="margin:2em 0;" >{% trans "Delete Project" %}</h3>
+	    <div class="deletelink">
+	    <p>
+	      <a class="i16 delete buttonized buttonized_warning" href="{% url project_delete project_slug=project.slug %}">{% trans "Delete project" %}</a>
+	      </p>
+	    </div>
+	    {% endif %}
+    {% endif %}    
+    
+  </div>
+</div>
+{% endblock %}
+

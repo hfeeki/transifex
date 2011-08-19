@@ -1,0 +1,52 @@
+{% load txcommontags %}
+{% load i18n %}
+{% url release_create project_slug=project.slug as release_create %}
+
+{% with project.releases.all as releases %}
+
+{% if releases %}
+
+  <div id="releases" class="releases separate">
+  
+  <div class="clearfix">
+  {% if perms.projects.pr_release_add_change or is_maintainer %}
+    <div class="editlinks">
+      <p style="display:inline;float:right; clear:right;"><a class="addbutton" href="{{ release_create }}" title="{% trans 'Add' %}"></a></p>
+    </div>
+  {% endif %}
+
+  {% if not releases_heading %}
+    <h3 class="separate-header">{% trans "Project Releases" %}{% render_metacount releases _("releases") %}</h3>
+  {% else %}
+    <h3>{{ releases_heading }}{% render_metacount releases _("releases") %}</h3>
+  {% endif %}
+  </div>
+  
+  <div class="release_list">
+    <ul class="simple bigthings">
+    {% for release in releases %}
+      <li><p class="i16 release"><a href="{{ release.get_absolute_url }}">{{ release.name }}</a>
+      {% if release.description %}<span class="description">– {{ release.description }}</span>{% endif %}</p></li>
+    {% endfor %}
+    </ul>
+  </div>
+
+  </div>
+
+{% else %}{# No releases #}
+  {% if perms.projects.pr_release_add_change or is_maintainer %}
+    <div id="releases" class="releases separate">
+
+    {% if not releases_heading %}
+      <h3>{% trans "Project Releases" %}{% render_metacount releases _("releases") %}</h3>
+    {% else %}
+      <h3>{{ releases_heading }}{% render_metacount releases _("releases") %}</h3>
+    {% endif %}
+
+    <p class="i16 tip">{% blocktrans %}No releases are registered for this project yet. Why don't you <a href="{{ release_create }}">add one</a>?{% endblocktrans %}</p>
+    </div>
+  {% endif %}
+{% endif %}
+
+{% endwith %}
+
